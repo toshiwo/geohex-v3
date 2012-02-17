@@ -1,4 +1,7 @@
 *.gem
 .bundle
+.rspec
 Gemfile.lock
+coverage/
+vendor/bundle/
 pkg/*
