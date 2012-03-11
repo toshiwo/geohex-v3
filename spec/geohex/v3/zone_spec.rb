@@ -30,4 +30,23 @@ describe Geohex::V3::Zone do
       end
     end
   end
+
+  describe :decode do
+
+    CSV.read(File.expand_path("../../../spec/fixtures/files/code2location.csv", File.dirname(__FILE__))).each do |data|
+
+      context "code: #{ data[3] }" do
+        let(:latitude)  { data[0].to_f }
+        let(:longitude) { data[1].to_f }
+        let(:level)     { data[2].to_i }
+        let(:code)      { data[3] }
+
+        subject { Geohex::V3::Zone.decode code }
+
+        its(:latitude)  { should be_eql latitude }
+        its(:longitude) { should be_eql longitude }
+        its(:level)     { should be_eql level }
+      end
+    end
+  end
 end

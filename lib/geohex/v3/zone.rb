@@ -21,6 +21,13 @@ module Geohex
           instance = self.new
           instance.encode latitude, longitude, level
         end
+
+        def decode code
+          instance = self.new
+          instance.decode code
+
+          instance
+        end
       end
 
       def calcHexSize level
@@ -144,7 +151,80 @@ module Geohex
       end
 
       def decode code
-        length = code.length
+        level = code.length
+        @level = code.length - 2
+        h_size = calcHexSize(level)
+
+        unit_x = 6 * h_size
+        unit_y = 6 * h_size * H_K
+        h_x = 0
+        h_y = 0
+        h_dec9 = ((H_KEY.index(code.slice(0, 1)) * 30) + H_KEY.index(code.slice(1, 1))).to_s + code.slice(2, code.length)
+        if h_dec9.slice(0, 1).match(/[15]/) and h_dec9.slice(1, 1).match(/[^125]/) and h_dec9.slice(2, 1).match(/[^125]/)
+          if h_dec9.slice(0, 1) == "5"
+            h_dec9 = "7" + h_dec9.slice(1, h_dec9.length)
+          else
+            h_dec9 = "3" + h_dec9.slice(1, h_dec9.length)
+          end
+        end
+
+        d9xlen = h_dec9.length
+
+        (level + 1 - d9xlen).times do
+          h_dec9 = "0" + h_dec9
+          d9xlen += 1
+        end
+
+        h_dec3 = ""
+        d9xlen.times do |i|
+          h_dec0 = h_dec9.slice(i, 1).to_i.to_s(3)
+
+          if h_dec0.length == 1
+            h_dec3 += "0"
+          end
+          h_dec3 += h_dec0
+        end
+
+        h_decx = []
+        h_decy = []
+
+        (h_dec3.length / 2).times do |i|
+          h_decx << h_dec3.slice(i * 2, 1)
+          h_decy << h_dec3.slice(i * 2 + 1, 1)
+        end
+
+        (level + 1).times do |i|
+          h_pow = (3 ** (level - i))
+          case h_decx[i].to_i
+          when 0
+            h_x -= h_pow
+          when 2
+            h_x += h_pow
+          end
+
+          case h_decy[i].to_i
+          when 0
+            h_y -= h_pow
+          when 2
+            h_y += h_pow
+          end
+        end
+
+        h_lat_y = (H_K * h_x * unit_x + h_y * unit_y) / 2
+        h_lon_x = (h_lat_y - h_y * unit_y) / H_K
+
+        h_loc = xy2loc(h_lon_x, h_lat_y)
+
+        h_loc.lon -= 360 if (h_loc.lon > 180)
+        h_loc.lon += 360 if (h_loc.lon < -180)
+
+        @code = code
+        @x = h_x
+        @y = h_y
+        @latitude = h_loc.lat
+        @longitude = h_loc.lon
+
+        [@latitude, @longitude, @x, @y, @code]
       end
     end
   end
