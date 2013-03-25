@@ -141,7 +141,7 @@ module Geohex
         h_a1 = (h_1 / 30).to_i
         h_a2 = h_1 % 30
 
-        @code = "#{ H_KEY.slice(h_a1) }#{ H_KEY.slice(h_a2) }#{ h_2 }"
+        @code = "#{ H_KEY.slice(h_a1, 1) }#{ H_KEY.slice(h_a2, 1) }#{ h_2 }"
         @x = h_x
         @y = h_y
         @latitude = latitude
