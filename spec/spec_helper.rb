@@ -2,6 +2,10 @@
 
 if ENV['COVERAGE']
   require "simplecov"
+
+  SimpleCov.start :test_frameworks do
+    add_filter "/vendor/bundle/"
+  end
 end
 
 require 'geohex'
