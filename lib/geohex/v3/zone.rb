@@ -28,6 +28,11 @@ module Geohex
 
           instance
         end
+        
+        def getZoneByXY x, y, level
+          instance = self.new
+          instance.getZoneByXY x, y, level
+        end
       end
 
       def calcHexSize level
@@ -226,6 +231,96 @@ module Geohex
 
         [@latitude, @longitude, @x, @y, @code]
       end
+      
+      def getZoneByXY(x, y, level)
+        h_size = calcHexSize(level)
+  
+        h_x = x
+        h_y = y
+  
+        unit_x = 6 * h_size
+        unit_y = 6 * h_size * H_K
+  
+        h_lat = (H_K * h_x * unit_x + h_y * unit_y) / 2
+        h_lon = (h_lat - h_y * unit_y) / H_K
+  
+        z_loc = xy2loc(h_lon, h_lat)
+        z_loc_x = z_loc.lon
+        z_loc_y = z_loc.lat
+  
+        max_hsteps = 3 ** ( level + 2)
+        hsteps = (h_x - h_y).abs
+  
+        if hsteps == max_hsteps
+          if h_x > h_y
+            tmp = h_x
+            h_x = h_y
+            h_y = tmp
+          end
+          z_loc_x = -180
+        end
+  
+        h_code = ""
+        code3_x = []
+        code3_y = []
+        code3 = ""
+        code9 = ""
+        mod_x = h_x
+        mod_y = h_y
+
+        (level + 3).times do |i|
+          h_pow = 3 ** (level + 2 - i)
+          if mod_x >= (h_pow / 2.0).ceil
+            code3_x[i] = 2
+            mod_x -= h_pow
+          elsif mod_x <= -(h_pow / 2.0).ceil
+            code3_x[i] = 0
+            mod_x += h_pow
+          else
+            code3_x[i] = 1
+          end
+    
+          if (mod_y >= (h_pow / 2.0).ceil)
+            code3_y[i] = 2
+            mod_y -= h_pow
+          elsif (mod_y <= -(h_pow / 2.0).ceil)
+            code3_y[i] = 0
+            mod_y += h_pow
+          else
+            code3_y[i] = 1
+          end
+    
+          if i == 2 && (z_loc_x == -180 || z_loc_x >= 0)
+            if code3_x[0] == 2 && code3_y[0] == 1 && code3_x[1] == code3_y[1] && code3_x[2] == code3_y[2]
+              code3_x[0] = 1
+              code3_y[0] = 2
+            elsif
+              code3_x[0] == 1 && code3_y[0] == 0 && code3_x[1] == code3_y[1] && code3_x[2] == code3_y[2]
+              code3_x[0] = 0
+              code3_y[0] = 1
+            end   
+          end
+    
+        end
+        
+        code3_x.length.to_i.times do |i|
+          code3 = "#{ code3_x[i] }#{ code3_y[i] }"
+          code9 = code3.to_i(3).to_s
+          h_code += code9.to_s
+        end
+        
+        h_2 = h_code.slice(3, h_code.size).to_s
+        h_1 = h_code.slice(0,3).to_i
+        h_a1 = (h_1/30).floor.to_i
+        h_a2 = h_1 % 30
+        @code = "#{ H_KEY.slice(h_a1) }#{ H_KEY.slice(h_a2)}#{h_2}"
+        @x = h_x
+        @y = h_y
+        @latitude = latitude
+        @longitude = longitude
+        @code
+      end
+      
     end
   end
 end
