@@ -28,7 +28,7 @@ module Geohex
 
           instance
         end
-        
+
         def getZoneByXY x, y, level
           instance = self.new
           instance.getZoneByXY x, y, level
@@ -36,7 +36,7 @@ module Geohex
       end
 
       def calcHexSize level
-        H_BASE / (3.0 ** (level + 1))
+        H_BASE / (3.0 ** (level + 3))
       end
 
       def loc2xy lon, lat
@@ -62,7 +62,7 @@ module Geohex
 
         @level = level
         level += 2
-        h_size = calcHexSize(level)
+        h_size = calcHexSize(@level)
 
         z_xy = loc2xy(longitude, latitude)
         lon_grid = z_xy.x
@@ -97,7 +97,7 @@ module Geohex
         z_loc_x = z_loc.lon
         z_loc_y = z_loc.lat
         if ((H_BASE - h_lon) < h_size)
-          z_loc_x = 180
+          z_loc_x = 180.0
           h_xy = h_x
           h_x = h_y
           h_y = h_xy
@@ -165,6 +165,7 @@ module Geohex
         h_x = 0
         h_y = 0
         h_dec9 = ((H_KEY.index(code.slice(0, 1)) * 30) + H_KEY.index(code.slice(1, 1))).to_s + code.slice(2, code.length)
+
         if h_dec9.slice(0, 1).match(/[15]/) and h_dec9.slice(1, 1).match(/[^125]/) and h_dec9.slice(2, 1).match(/[^125]/)
           if h_dec9.slice(0, 1) == "5"
             h_dec9 = "7" + h_dec9.slice(1, h_dec9.length)
@@ -215,51 +216,41 @@ module Geohex
           end
         end
 
-        h_lat_y = (H_K * h_x * unit_x + h_y * unit_y) / 2
-        h_lon_x = (h_lat_y - h_y * unit_y) / H_K
+        h_x, h_y, rev = adjust_xy h_x, h_y, @level
 
-        h_loc = xy2loc(h_lon_x, h_lat_y)
-
-        h_loc.lon -= 360 if (h_loc.lon > 180)
-        h_loc.lon += 360 if (h_loc.lon < -180)
-
-        @code = code
-        @x = h_x
-        @y = h_y
-        @latitude = h_loc.lat
-        @longitude = h_loc.lon
+        @latitude, @longitude, @x, @y, @code = getZoneByXY h_x, h_y, @level
 
         [@latitude, @longitude, @x, @y, @code]
       end
-      
-      def getZoneByXY(x, y, level)
+
+      def getZoneByXY x, y, level
         h_size = calcHexSize(level)
-  
+
         h_x = x
         h_y = y
-  
+
         unit_x = 6 * h_size
         unit_y = 6 * h_size * H_K
-  
+
         h_lat = (H_K * h_x * unit_x + h_y * unit_y) / 2
         h_lon = (h_lat - h_y * unit_y) / H_K
-  
+
         z_loc = xy2loc(h_lon, h_lat)
         z_loc_x = z_loc.lon
         z_loc_y = z_loc.lat
-  
+
         max_hsteps = 3 ** ( level + 2)
         hsteps = (h_x - h_y).abs
-  
+
         if hsteps == max_hsteps
           if h_x > h_y
             tmp = h_x
             h_x = h_y
             h_y = tmp
           end
-          z_loc_x = -180
+          z_loc_x = -180.0
         end
-  
+
         h_code = ""
         code3_x = []
         code3_y = []
@@ -279,7 +270,7 @@ module Geohex
           else
             code3_x[i] = 1
           end
-    
+
           if (mod_y >= (h_pow / 2.0).ceil)
             code3_y[i] = 2
             mod_y -= h_pow
@@ -289,7 +280,7 @@ module Geohex
           else
             code3_y[i] = 1
           end
-    
+
           if i == 2 && (z_loc_x == -180 || z_loc_x >= 0)
             if code3_x[0] == 2 && code3_y[0] == 1 && code3_x[1] == code3_y[1] && code3_x[2] == code3_y[2]
               code3_x[0] = 1
@@ -298,29 +289,64 @@ module Geohex
               code3_x[0] == 1 && code3_y[0] == 0 && code3_x[1] == code3_y[1] && code3_x[2] == code3_y[2]
               code3_x[0] = 0
               code3_y[0] = 1
-            end   
+            end
           end
-    
         end
-        
-        code3_x.length.to_i.times do |i|
+
+        code3_x.length.times do |i|
           code3 = "#{ code3_x[i] }#{ code3_y[i] }"
           code9 = code3.to_i(3).to_s
           h_code += code9.to_s
         end
-        
+
         h_2 = h_code.slice(3, h_code.size).to_s
-        h_1 = h_code.slice(0,3).to_i
-        h_a1 = (h_1/30).floor.to_i
+        h_1 = h_code.slice(0, 3).to_i
+        h_a1 = (h_1 / 30).floor.to_i
         h_a2 = h_1 % 30
-        @code = "#{ H_KEY.slice(h_a1) }#{ H_KEY.slice(h_a2)}#{h_2}"
-        @x = h_x
-        @y = h_y
-        @latitude = latitude
-        @longitude = longitude
-        @code
+
+        code = "#{ H_KEY.slice(h_a1) }#{ H_KEY.slice(h_a2)}#{h_2}"
+
+        [ z_loc_y, z_loc_x, h_x, h_y, code ]
       end
-      
+
+      def adjust_xy x, y, level
+        rev = 0
+        max_hsteps = (3 ** (level + 2))
+        hsteps = (x - y).abs
+
+        if hsteps == max_hsteps && x > y
+          tmp = x
+          x = y
+          y = tmp
+          rev = 1
+        elsif hsteps > max_hsteps
+          dif = hsteps - max_hsteps;
+          dif_x = (dif / 2).floor
+          dif_y = dif - dif_x
+
+          if x > y
+            edge_x = x - dif_x
+            edge_y = y + dif_y
+            h_xy = edge_x
+            edge_x = edge_y
+            edge_y = h_xy
+            x = edge_x + dif_x
+            y = edge_y - dif_y
+          elsif y > x
+            edge_x = x + dif_x
+            edge_y = y - dif_y
+            var h_xy = edge_x
+            edge_x = edge_y
+            edge_y = h_xy
+            x = edge_x - dif_x
+            y = edge_y + dif_y
+          end
+        end
+
+        [ x, y, rev ]
+      end
+      private :adjust_xy
+
     end
   end
 end
