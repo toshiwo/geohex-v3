@@ -2,13 +2,13 @@ require 'bigdecimal'
 
 RSpec::Matchers.define :be_near_eql do |expected, precision|
   match do |actual|
-    bigdecimal_actual = BigDecimal.new(actual.to_s).round(precision).ceil(precision)
-    bigdecimal_expected = BigDecimal.new(expected.to_s).round(precision).ceil(precision)
+    actual_f = BigDecimal.new(actual.to_s).round(precision).ceil(precision).to_f
+    expected_f = BigDecimal.new(expected.to_s).round(precision).ceil(precision).to_f
 
     if expected == 180.0
-      bigdecimal_actual.abs == bigdecimal_expected.abs
+      actual_f.abs == expected_f.abs
     else
-      bigdecimal_actual == bigdecimal_expected
+      actual_f == expected_f
     end
   end
 end

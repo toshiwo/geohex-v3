@@ -33,7 +33,7 @@ describe Geohex::V3::Zone do
 
   describe :decode do
 
-    let(:precision) { 11 }
+    let(:precision) { 10 }
 
     CSV.read(File.expand_path("../../../spec/fixtures/files/code2location.csv", File.dirname(__FILE__))).each do |data|
 
