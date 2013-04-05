@@ -28,16 +28,12 @@ module Geohex
 
           instance
         end
-
-        def getZoneByXY x, y, level
-          instance = self.new
-          instance.getZoneByXY x, y, level
-        end
       end
 
       def calcHexSize level
         H_BASE / (3.0 ** (level + 3))
       end
+      private :calcHexSize
 
       def loc2xy lon, lat
         x = lon * H_BASE / 180
@@ -46,6 +42,7 @@ module Geohex
 
         OpenStruct.new :x =>x, :y => y
       end
+      private :loc2xy
 
       def xy2loc x, y
         lon = (x / H_BASE) * 180
@@ -54,6 +51,7 @@ module Geohex
 
         OpenStruct.new :lon => lon, :lat => lat
       end
+      private :xy2loc
 
       def encode latitude, longitude, level = 7
         raise ArgumentError, "latitude must be between -90 and 90" unless (-90..90).include? latitude
@@ -308,6 +306,7 @@ module Geohex
 
         [ z_loc_y, z_loc_x, h_x, h_y, code ]
       end
+      private :getZoneByXY
 
       def adjust_xy x, y, level
         rev = 0
