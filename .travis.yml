@@ -14,6 +14,10 @@ rvm:
 
 before_install: gem install bundler -v 1.11.2
 
+cache: bundler
+
+bundler_args: --without production --deployment
+
 script: "bundle exec rake spec"
 
 notifications:
