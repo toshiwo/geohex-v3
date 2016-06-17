@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
   # s.add_development_dependency "rspec"
   # s.add_runtime_dependency "rest-client"
 
-  s.add_development_dependency 'rake'
+  s.add_development_dependency 'rake', "~> 10.0.4"
   s.add_development_dependency "rspec", "~> 2.14.1"
   s.add_development_dependency "rr", "~> 1.1.1"
   s.add_development_dependency "simplecov", "~> 0.7.1"
