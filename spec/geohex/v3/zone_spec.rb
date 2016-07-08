@@ -5,14 +5,14 @@ require 'csv'
 
 describe Geohex::V3::Zone do
 
-  it { should be_respond_to :latitude }
-  it { should be_respond_to :longitude }
-  it { should be_respond_to :lat }
-  it { should be_respond_to :lon }
-  it { should be_respond_to :level }
-  it { should be_respond_to :code }
-  it { should be_respond_to :x }
-  it { should be_respond_to :y }
+  it { is_expected.to be_respond_to :latitude }
+  it { is_expected.to be_respond_to :longitude }
+  it { is_expected.to be_respond_to :lat }
+  it { is_expected.to be_respond_to :lon }
+  it { is_expected.to be_respond_to :level }
+  it { is_expected.to be_respond_to :code }
+  it { is_expected.to be_respond_to :x }
+  it { is_expected.to be_respond_to :y }
 
   describe :encode do
 
@@ -26,7 +26,7 @@ describe Geohex::V3::Zone do
 
         subject { Geohex::V3::Zone.encode latitude, longitude, level }
 
-        it { should be_eql code }
+        it { is_expected.to be_eql code }
       end
     end
   end
@@ -45,9 +45,9 @@ describe Geohex::V3::Zone do
 
         subject { Geohex::V3::Zone.decode code }
 
-        it { subject.latitude.should be_near_eql latitude, precision }
-        it { subject.longitude.should be_near_eql longitude, precision }
-        it { subject.level.should be_eql level }
+        it { expect(subject.latitude).to be_near_eql latitude, precision }
+        it { expect(subject.longitude).to be_near_eql longitude, precision }
+        it { expect(subject.level).to be_eql level }
       end
     end
   end
