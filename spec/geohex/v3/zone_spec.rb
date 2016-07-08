@@ -45,9 +45,9 @@ describe Geohex::V3::Zone do
 
         subject { Geohex::V3::Zone.decode code }
 
-        its(:latitude)  { should be_near_eql latitude, precision }
-        its(:longitude) { should be_near_eql longitude, precision }
-        its(:level)     { should be_eql level }
+        it { subject.latitude.should be_near_eql latitude, precision }
+        it { subject.longitude.should be_near_eql longitude, precision }
+        it { subject.level.should be_eql level }
       end
     end
   end
