@@ -2,5 +2,5 @@
 
 require 'spec_helper'
 
-describe Geohex do
+RSpec.describe Geohex do
 end

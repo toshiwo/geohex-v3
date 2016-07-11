@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'csv'
 
-describe Geohex::V3::Zone do
+RSpec.describe Geohex::V3::Zone do
 
   it { is_expected.to be_respond_to :latitude }
   it { is_expected.to be_respond_to :longitude }
