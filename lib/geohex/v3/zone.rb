@@ -244,12 +244,12 @@ module Geohex
         h_cr = xy2loc(h_x + 1 * h_size, h_y)['lon']
 
         [
-          {'lat': h_lat, 'lon': h_l},
-          {'lat': h_top, 'lon': h_cl},
-          {'lat': h_top, 'lon': h_cr},
-          {'lat': h_lat, 'lon': h_r},
-          {'lat': h_btm, 'lon': h_cr},
-          {'lat': h_btm, 'lon': h_cl}
+          {:lat => h_lat, :lon => h_l},
+          {:lat => h_top, :lon => h_cl},
+          {:lat => h_top, :lon => h_cr},
+          {:lat => h_lat, :lon => h_r},
+          {:lat => h_btm, :lon => h_cr},
+          {:lat => h_btm, :lon => h_cl}
         ]
       end
 
