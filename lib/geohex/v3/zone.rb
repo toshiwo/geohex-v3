@@ -28,6 +28,13 @@ module Geohex
 
           instance
         end
+
+        def get_coords code
+          instance = self.new
+          instance.decode code
+          instance.coords
+        end
+
       end
 
       def calcHexSize level
@@ -219,6 +226,31 @@ module Geohex
         @latitude, @longitude, @x, @y, @code = getZoneByXY h_x, h_y, @level
 
         [@latitude, @longitude, @x, @y, @code]
+      end
+
+      def coords
+        h_xy = loc2xy(@longitude, @latitude)
+        h_x = h_xy["x"]
+        h_y = h_xy["y"]
+        h_lat = @latitude
+        h_deg = Math.tan(Math::PI * (60.0 / 180.0))
+        h_size = calcHexSize(@level)
+        h_top = xy2loc(h_x, h_y + h_deg * h_size)['lat']
+        h_btm = xy2loc(h_x, h_y - h_deg * h_size)['lat']
+
+        h_l = xy2loc(h_x - 2 * h_size, h_y)['lon']
+        h_r = xy2loc(h_x + 2 * h_size, h_y)['lon']
+        h_cl = xy2loc(h_x - 1 * h_size, h_y)['lon']
+        h_cr = xy2loc(h_x + 1 * h_size, h_y)['lon']
+
+        [
+          {'lat': h_lat, 'lon': h_l},
+          {'lat': h_top, 'lon': h_cl},
+          {'lat': h_top, 'lon': h_cr},
+          {'lat': h_lat, 'lon': h_r},
+          {'lat': h_btm, 'lon': h_cr},
+          {'lat': h_btm, 'lon': h_cl}
+        ]
       end
 
       def getZoneByXY x, y, level
