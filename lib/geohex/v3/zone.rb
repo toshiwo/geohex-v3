@@ -32,6 +32,8 @@ module Geohex
         def getZoneByXY x, y, level
           instance = self.new
           instance.getZoneByXY x, y, level
+
+          instance
         end
       end
 
@@ -309,6 +311,7 @@ module Geohex
 
         code = "#{ H_KEY.slice(h_a1) }#{ H_KEY.slice(h_a2)}#{h_2}"
 
+        @latitude, @longitude, @x, @y, @code  =  z_loc_y, z_loc_x, h_x, h_y, code
         [ z_loc_y, z_loc_x, h_x, h_y, code ]
       end
 
