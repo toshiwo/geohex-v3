@@ -28,6 +28,11 @@ module Geohex
 
           instance
         end
+
+        def getZoneByXY x, y, level
+          instance = self.new
+          instance.getZoneByXY x, y, level
+        end
       end
 
       def calcHexSize level
@@ -306,7 +311,6 @@ module Geohex
 
         [ z_loc_y, z_loc_x, h_x, h_y, code ]
       end
-      private :getZoneByXY
 
       def adjust_xy x, y, level
         rev = 0
