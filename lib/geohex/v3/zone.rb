@@ -334,7 +334,7 @@ module Geohex
           elsif y > x
             edge_x = x + dif_x
             edge_y = y - dif_y
-            var h_xy = edge_x
+            h_xy = edge_x
             edge_x = edge_y
             edge_y = h_xy
             x = edge_x - dif_x
